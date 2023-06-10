@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import FeedbackButton from 'components/feedback-button/feedback-button';
 import { nanoid } from 'nanoid';
 import FeedbackItemRender from 'components/feedback-item-render/feedback-item-render';
@@ -6,85 +6,81 @@ import FuncItemRender from 'components/total-count/func-item-render';
 import Section from './section/section';
 import Notification from './notification/notification';
 
-export class App extends Component {
-  static propTypes = { good: Number, neutral: Number, bad: Number };
+export const App = ({ names }) => {
+  const STATE_NAMES = [...names];
+  console.log(STATE_NAMES);
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  console.log(good);
 
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
-  };
-
-  btnHandle = e => {
-    if (e.target.innerHTML === 'good') {
-      this.setState({
-        good: this.state.good + 1,
-      });
-    } else if (e.target.innerHTML === 'neutral') {
-      this.setState({
-        neutral: this.state.neutral + 1,
-      });
+  const stateNameToValueForRender = n => {
+    if (n === 'good') {
+      return good;
+    } else if (n === 'neutral') {
+      return neutral;
     } else {
-      this.setState({
-        bad: this.state.bad + 1,
-      });
+      return bad;
     }
   };
 
-  countTotalFeedback = () =>
-    this.state.bad + this.state.neutral + this.state.good;
+  const btnHandle = e => {
+    console.log(e.target);
+    if (e.target.id === 'good') {
+      setGood(good + 1);
+    } else if (e.target.id === 'neutral') {
+      setNeutral(neutral + 1);
+    } else {
+      setBad(bad + 1);
+    }
+  };
 
-  countPositiveFeedbackPercentage = () =>
-    ((this.state.good / this.countTotalFeedback()) * 100).toFixed(2);
+  const countTotalFeedback = () => bad + neutral + good;
 
-  render() {
-    return (
-      <>
+  const countPositiveFeedbackPercentage = () =>
+    ((good / countTotalFeedback()) * 100).toFixed(2);
+
+  return (
+    <>
+      <Section
+        title="Please leave feedback"
+        render={STATE_NAMES.map(feedback => (
+          <FeedbackButton name={feedback} key={feedback} func={btnHandle} />
+        ))}
+      />
+
+      {good > 0 || neutral > 0 || bad > 0 ? (
         <Section
-          title="Please leave feedback"
-          render={Object.keys(this.state).map(feedback => (
-            <FeedbackButton
-              name={feedback}
+          title="Statistics"
+          render={STATE_NAMES.map(n => (
+            <FeedbackItemRender
+              objkey={n}
+              value={stateNameToValueForRender(n)}
               key={nanoid()}
-              func={this.btnHandle}
             />
           ))}
-        />
-
-        {JSON.stringify(this.state) ===
-        JSON.stringify({ good: 0, neutral: 0, bad: 0 }) ? (
-          <Section
-            title="Statistics"
-            reactComp={<Notification messege="There is no feedback" />}
-          />
-        ) : (
-          <Section
-            title="Statistics"
-            render={Object.entries(this.state).map(value => (
-              <FeedbackItemRender
-                objkey={value[0]}
-                value={value[1]}
+          reactComp={
+            <div>
+              <FuncItemRender
+                title="total"
+                func={countTotalFeedback()}
                 key={nanoid()}
               />
-            ))}
-            reactComp={
-              <div>
-                <FuncItemRender
-                  title="total"
-                  func={this.countTotalFeedback()}
-                  key={nanoid()}
-                />
-                <FuncItemRender
-                  title="Positive feedback"
-                  func={this.countPositiveFeedbackPercentage()}
-                  percent="%"
-                  key={nanoid()}
-                />
-              </div>
-            }
-          />
-        )}
-      </>
-    );
-  }
-}
+              <FuncItemRender
+                title="Positive feedback"
+                func={countPositiveFeedbackPercentage()}
+                percent="%"
+                key={nanoid()}
+              />
+            </div>
+          }
+        />
+      ) : (
+        <Section
+          title="Statistics"
+          reactComp={<Notification messege="There is no feedback" />}
+        />
+      )}
+    </>
+  );
+};
