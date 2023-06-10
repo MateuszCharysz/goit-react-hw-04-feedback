@@ -5,14 +5,13 @@ import FeedbackItemRender from 'components/feedback-item-render/feedback-item-re
 import FuncItemRender from 'components/total-count/func-item-render';
 import Section from './section/section';
 import Notification from './notification/notification';
+import PropTypes from 'prop-types';
 
 export const App = ({ names }) => {
   const STATE_NAMES = [...names];
-  console.log(STATE_NAMES);
   const [good, setGood] = useState(0);
   const [neutral, setNeutral] = useState(0);
   const [bad, setBad] = useState(0);
-  console.log(good);
 
   const stateNameToValueForRender = n => {
     if (n === 'good') {
@@ -83,4 +82,8 @@ export const App = ({ names }) => {
       )}
     </>
   );
+};
+
+App.propTypes = {
+  names: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
