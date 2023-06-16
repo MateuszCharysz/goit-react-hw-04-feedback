@@ -4,7 +4,7 @@ import css from './Feedback-button.module.css';
 
 const FeedbackButton = ({ name, func }) => {
   return (
-    <button type="button" className={css.feedBtn} onClick={func} id={name}>
+    <button type="button" className={css.feedBtn} onClick={func}>
       {name}
     </button>
   );
